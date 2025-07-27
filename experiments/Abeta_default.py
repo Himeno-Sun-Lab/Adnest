@@ -3,8 +3,8 @@ import os
 # Overwrite values of src/default_net_params.py
 net_params = {}
 
-net_params["N_scaling"] = 0.2
-net_params["K_scaling"] = 0.2
+# net_params["N_scaling"] = 0.2
+# net_params["K_scaling"] = 0.2
 net_params["fullscale_rates"] = os.path.join(os.getcwd(), "simulated_data", "base_theory_rates.pkl")
 
 net_params["Abeta"] = True
