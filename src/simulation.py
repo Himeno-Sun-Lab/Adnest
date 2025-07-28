@@ -169,19 +169,251 @@ class Simulation():
             nest.Rank(), self._getMemoryMB()
         ))
 
+    # def create_populations_Abeta(self):
+    #     """
+    #     创建神经元群体，包含受Aβ影响的神经元 (Creates neuronal populations with Aβ-affected neurons)
+
+    #     此函数负责创建大脑仿真模型中的所有神经元群体，包括正常神经元和受β-淀粉样蛋白(Aβ)
+    #     影响的神经元。这对于阿尔茨海默病的病理建模至关重要。
+        
+    #     主要功能:
+    #     - 根据Abeta_ratio创建受Aβ影响的神经元和正常神经元
+    #     - 分别设置两类神经元的不同参数
+    #     - 记录Aβ影响神经元的GID到专门文件
+    #     - 监控内存使用情况
+    #     - 记录所有群体信息
+    #     """
+        
+    #     # ==================== 内存监控和初始化 ====================
+    #     print('Memory on rank {} before creating populations: {:.2f}MB'.format(
+    #         nest.Rank(), self._getMemoryMB()
+    #     ))
+        
+    #     # 初始化群体字典
+    #     self.pops = {}
+        
+    #     # ==================== 文件设置 ====================
+    #     # 设置群体ID记录文件路径
+    #     pop_file_name = os.path.join(self.data_path, 'population_GIDs.dat')
+    #     # 设置Aβ影响神经元ID记录文件路径
+    #     abeta_file_name = os.path.join(self.data_path, 'Abeta_GID.txt')
+        
+    #     # 获取本地线程数
+    #     local_num_threads = nest.GetKernelStatus('local_num_threads')
+        
+    #     # ==================== 双文件写入主循环 ====================
+    #     # 同时打开两个文件：群体信息文件和Aβ神经元文件
+    #     with open(pop_file_name, 'w+') as pop_file, open(abeta_file_name, 'w+') as abeta_file:
+            
+    #         # 写入Aβ文件头部信息
+    #         abeta_file.write('# Abeta-affected neurons Global IDs\n')
+    #         abeta_file.write('# Format: Population_Name;Start_GID;End_GID;Neuron_Count\n')
+            
+    #         # 遍历所有神经元群体
+    #         for pop, nn in self.net_dict['neuron_numbers'].items():
+    #             if nn > 0:  # 只处理有神经元的群体
+                    
+    #                 # ==================== 神经元类型识别和参数加载 ====================
+    #                 if pop[-1] == 'E':  # 兴奋性神经元
+    #                     # 正常兴奋性神经元参数
+    #                     neuron_model_pop = self.net_dict['neuron_model_E']
+    #                     neuron_params_pop = self.net_dict['neuron_params_E']
+    #                     nrn_prm_dist_pop = self.net_dict['neuron_param_dist_E']
+                        
+    #                     # Aβ影响的兴奋性神经元参数
+    #                     Abeta_ratio = self.net_dict["Abeta_ratio_E"]
+    #                     neuron_model_pop_Abeta = self.net_dict["neuron_model_Abeta_E"]
+    #                     neuron_params_pop_Abeta = self.net_dict['neuron_params_Abeta_E']
+    #                     nrn_prm_dist_pop_Abeta = self.net_dict['neuron_param_dist_Abeta_E']
+                        
+    #                 elif pop[-1] == 'I':  # 抑制性神经元
+    #                     # 正常抑制性神经元参数
+    #                     neuron_model_pop = self.net_dict['neuron_model_I']
+    #                     neuron_params_pop = self.net_dict['neuron_params_I']
+    #                     nrn_prm_dist_pop = self.net_dict['neuron_param_dist_I']
+                        
+    #                     # Aβ影响的抑制性神经元参数
+    #                     Abeta_ratio = self.net_dict["Abeta_ratio_I"]
+    #                     neuron_model_pop_Abeta = self.net_dict["neuron_model_Abeta_I"]
+    #                     neuron_params_pop_Abeta = self.net_dict['neuron_params_Abeta_I']
+    #                     nrn_prm_dist_pop_Abeta = self.net_dict['neuron_param_dist_Abeta_I']
+                        
+    #                 else:
+    #                     raise NotImplementedError("Populations have to be E or I")
+                    
+    #                 # ==================== 神经元数量计算 ====================
+    #                 # 根据Aβ比例计算受影响和正常神经元的数量
+    #                 nn_Abeta = int(np.round(nn * Abeta_ratio))  # 受Aβ影响的神经元数量
+    #                 nn_normal = int(nn - nn_Abeta)             # 正常神经元数量
+                    
+    #                 print(f'Population {pop}: Total={nn}, Abeta-affected={nn_Abeta}, Normal={nn_normal}, Abeta_ratio={Abeta_ratio:.3f}')
+                    
+    #                 # ==================== 分别创建两类神经元群体 ====================
+    #                 created_populations = []  # 存储创建的子群体
+                    
+    #                 # 创建受Aβ影响的神经元（如果数量大于0）
+    #                 if nn_Abeta > 0:
+    #                     pop_Abeta = nest.Create(neuron_model_pop_Abeta, nn_Abeta)
+    #                     pop_Abeta.set(neuron_params_pop_Abeta)
+    #                     created_populations.append(pop_Abeta)
+                        
+    #                     # 记录Aβ影响神经元的GID信息
+    #                     abeta_file.write('{};{};{};{}\n'.format(
+    #                         pop,                                    # 群体名称
+    #                         pop_Abeta[0].get()['global_id'],       # 起始GID
+    #                         pop_Abeta[-1].get()['global_id'],      # 结束GID
+    #                         nn_Abeta                               # 神经元数量
+    #                     ))
+                        
+    #                     print(f'  Created {nn_Abeta} Abeta-affected neurons (GID: {pop_Abeta[0].get()["global_id"]}-{pop_Abeta[-1].get()["global_id"]})')
+                    
+    #                 # 创建正常神经元（如果数量大于0）
+    #                 if nn_normal > 0:
+    #                     pop_normal = nest.Create(neuron_model_pop, nn_normal)
+    #                     pop_normal.set(neuron_params_pop)
+    #                     created_populations.append(pop_normal)
+                        
+    #                     print(f'  Created {nn_normal} normal neurons (GID: {pop_normal[0].get()["global_id"]}-{pop_normal[-1].get()["global_id"]})')
+                    
+    #                 # ==================== 合并群体 ====================
+    #                 # 将Aβ影响和正常神经元合并为一个群体
+    #                 if created_populations:
+    #                     if len(created_populations) == 2:
+    #                         population = created_populations[0] + created_populations[1]  # Aβ + 正常
+    #                     else:
+    #                         population = created_populations[0]  # 只有一种类型
+    #                 else:
+    #                     continue  # 如果没有创建任何神经元，跳过此群体
+                    
+    #                 # ==================== 直流驱动设置 ====================
+    #                 # 为整个群体（包括Aβ和正常神经元）分配相同的直流输入
+    #                 nest.SetStatus(
+    #                     population, {
+    #                         'I_e': self.net_dict['dc_drive'].loc[pop]
+    #                     }
+    #                 )
+                    
+    #                 # ==================== 膜电位初始化 ====================
+    #                 # 所有神经元使用相同的初始膜电位分布
+    #                 population.V_m = nest.random.normal(
+    #                     mean=self.sim_dict['V0_mean'],
+    #                     std=self.sim_dict['V0_sd']
+    #                 )
+                    
+    #                 # ==================== 参数分布设置 ====================
+    #                 # 分别为Aβ影响和正常神经元设置参数分布
+                    
+    #                 # 1. 为Aβ影响的神经元设置参数分布
+    #                 if nn_Abeta > 0:
+    #                     for prm, dist_dict in nrn_prm_dist_pop_Abeta.items():
+    #                         if dist_dict['rel_sd'] > 0:
+    #                             param_dist = dist_dict['distribution']
+    #                             if param_dist == 'lognormal':
+    #                                 mean_prm = neuron_params_pop_Abeta[prm]
+    #                                 offset_prm = 0.
+    #                                 if prm == 'V_th':
+    #                                     mean_prm -= neuron_params_pop_Abeta['E_L']
+    #                                     offset_prm += neuron_params_pop_Abeta['E_L']
+    #                                 assert mean_prm > 0
+    #                                 mu_param, sigma_param = mu_sigma_lognorm(
+    #                                     mean=mean_prm,
+    #                                     rel_sd=dist_dict['rel_sd']
+    #                                 )
+    #                                 # 只对Aβ影响的神经元应用参数
+    #                                 pop_Abeta.set({prm:
+    #                                     offset_prm + nest.random.lognormal(
+    #                                     mean=mu_param,
+    #                                     std=sigma_param
+    #                                 )})
+    #                             else:
+    #                                 err_msg = f"Parameter distribution {param_dist} not implemented for Abeta neurons."
+    #                                 raise NotImplementedError(err_msg)
+                    
+    #                 # 2. 为正常神经元设置参数分布
+    #                 if nn_normal > 0:
+    #                     for prm, dist_dict in nrn_prm_dist_pop.items():
+    #                         if dist_dict['rel_sd'] > 0:
+    #                             param_dist = dist_dict['distribution']
+    #                             if param_dist == 'lognormal':
+    #                                 mean_prm = neuron_params_pop[prm]
+    #                                 offset_prm = 0.
+    #                                 if prm == 'V_th':
+    #                                     mean_prm -= neuron_params_pop['E_L']
+    #                                     offset_prm += neuron_params_pop['E_L']
+    #                                 assert mean_prm > 0
+    #                                 mu_param, sigma_param = mu_sigma_lognorm(
+    #                                     mean=mean_prm,
+    #                                     rel_sd=dist_dict['rel_sd']
+    #                                 )
+    #                                 # 只对正常神经元应用参数
+    #                                 pop_normal.set({prm:
+    #                                     offset_prm + nest.random.lognormal(
+    #                                     mean=mu_param,
+    #                                     std=sigma_param
+    #                                 )})
+    #                             else:
+    #                                 err_msg = f"Parameter distribution {param_dist} not implemented for normal neurons."
+    #                                 raise NotImplementedError(err_msg)
+                    
+    #                 # ==================== 群体存储和记录 ====================
+    #                 # 将合并后的群体存储到类字典中
+    #                 self.pops[pop] = population
+                    
+    #                 # 记录整个群体的信息到population_GIDs.dat文件
+    #                 pop_file.write('{};{};{}\n'.format(
+    #                     pop,                                        # 群体名称
+    #                     population[0].get()['global_id'],          # 群体起始GID
+    #                     population[-1].get()['global_id']          # 群体结束GID
+    #                 ))
+        
+    #     # ==================== 最终内存监控和统计 ====================
+    #     print('Memory on rank {} after creating populations: {:.2f}MB'.format(
+    #         nest.Rank(), self._getMemoryMB()
+    #     ))
+        
+    #     # 输出创建的群体统计信息
+    #     total_neurons = sum(len(pop) for pop in self.pops.values())
+    #     print(f'Successfully created {len(self.pops)} populations with {total_neurons} total neurons.')
+    #     print(f'Population GIDs saved to: {pop_file_name}')
+    #     print(f'Abeta-affected neuron GIDs saved to: {abeta_file_name}')
+
+    # ==================== 补充函数说明 ====================
+    # """
+    # 此修改版本的主要改进:
+
+    # 1. Aβ病理建模 (Aβ Pathology Modeling):
+    # - 根据Abeta_ratio精确计算受影响神经元数量
+    # - 分别创建和配置Aβ影响和正常神经元
+    # - 使用不同的神经元模型和参数来模拟病理变化
+
+    # 2. 数据记录增强 (Enhanced Data Recording):
+    # - 创建专门的Abeta_GID.txt文件记录受影响神经元
+    # - 详细记录每个群体中Aβ神经元的GID范围
+    # - 添加统计信息和创建过程日志
+
+    # 3. 参数分布优化 (Parameter Distribution Optimization):
+    # - 分别为Aβ和正常神经元设置不同的参数分布
+    # - 保持参数设置的生物学现实性
+    # - 支持不同的病理严重程度建模
+
+    # 4. 错误处理和调试 (Error Handling and Debugging):
+    # - 添加详细的创建过程打印信息
+    # - 改进错误消息的特异性
+    # - 添加数量验证和统计输出
+
+    # 5. 计算效率 (Computational Efficiency):
+    # - 优化神经元创建流程
+    # - 减少不必要的参数设置重复
+    # - 改进内存使用监控
+
+    # 这个版本特别适合阿尔茨海默病的病理建模研究，能够精确控制病理神经元的比例和特性。
+    # """
+
     def create_populations_Abeta(self):
         """
         创建神经元群体，包含受Aβ影响的神经元 (Creates neuronal populations with Aβ-affected neurons)
-
-        此函数负责创建大脑仿真模型中的所有神经元群体，包括正常神经元和受β-淀粉样蛋白(Aβ)
-        影响的神经元。这对于阿尔茨海默病的病理建模至关重要。
         
-        主要功能:
-        - 根据Abeta_ratio创建受Aβ影响的神经元和正常神经元
-        - 分别设置两类神经元的不同参数
-        - 记录Aβ影响神经元的GID到专门文件
-        - 监控内存使用情况
-        - 记录所有群体信息
+        优化版本：解决文件缓冲区过大问题，适合SLURM集群大规模仿真
         """
         
         # ==================== 内存监控和初始化 ====================
@@ -189,25 +421,31 @@ class Simulation():
             nest.Rank(), self._getMemoryMB()
         ))
         
-        # 初始化群体字典
+        # 初始化群体字典和统计变量
         self.pops = {}
+        processed_populations = 0
+        total_abeta_neurons = 0
         
         # ==================== 文件设置 ====================
-        # 设置群体ID记录文件路径
         pop_file_name = os.path.join(self.data_path, 'population_GIDs.dat')
-        # 设置Aβ影响神经元ID记录文件路径
         abeta_file_name = os.path.join(self.data_path, 'Abeta_GID.txt')
         
-        # 获取本地线程数
-        local_num_threads = nest.GetKernelStatus('local_num_threads')
+        # 计算总群体数量用于进度监控
+        total_populations = len([pop for pop, nn in self.net_dict['neuron_numbers'].items() if nn > 0])
         
-        # ==================== 双文件写入主循环 ====================
-        # 同时打开两个文件：群体信息文件和Aβ神经元文件
-        with open(pop_file_name, 'w+') as pop_file, open(abeta_file_name, 'w+') as abeta_file:
+        # ==================== 优化的双文件写入主循环 ====================
+        # 使用行缓冲模式，每行立即写入磁盘
+        with open(pop_file_name, 'w+', buffering=1) as pop_file, \
+            open(abeta_file_name, 'w+', buffering=1) as abeta_file:
             
             # 写入Aβ文件头部信息
-            abeta_file.write('# Abeta-affected neurons Global IDs\n')
+            abeta_file.write('# Abeta-affected neurons Global IDs for Alzheimer\'s Disease Simulation\n')
+            abeta_file.write('# Generated by NEST simulator on SLURM cluster\n')
             abeta_file.write('# Format: Population_Name;Start_GID;End_GID;Neuron_Count\n')
+            
+            # 定义刷新间隔（适合集群环境）
+            FLUSH_INTERVAL = max(1, total_populations // 20)  # 每5%进度刷新一次
+            MEMORY_CHECK_INTERVAL = max(1, total_populations // 10)  # 每10%检查内存
             
             # 遍历所有神经元群体
             for pop, nn in self.net_dict['neuron_numbers'].items():
@@ -242,9 +480,9 @@ class Simulation():
                         raise NotImplementedError("Populations have to be E or I")
                     
                     # ==================== 神经元数量计算 ====================
-                    # 根据Aβ比例计算受影响和正常神经元的数量
                     nn_Abeta = int(np.round(nn * Abeta_ratio))  # 受Aβ影响的神经元数量
                     nn_normal = int(nn - nn_Abeta)             # 正常神经元数量
+                    total_abeta_neurons += nn_Abeta
                     
                     print(f'Population {pop}: Total={nn}, Abeta-affected={nn_Abeta}, Normal={nn_normal}, Abeta_ratio={Abeta_ratio:.3f}')
                     
@@ -257,7 +495,7 @@ class Simulation():
                         pop_Abeta.set(neuron_params_pop_Abeta)
                         created_populations.append(pop_Abeta)
                         
-                        # 记录Aβ影响神经元的GID信息
+                        # 立即记录Aβ影响神经元的GID信息（行缓冲会立即写入）
                         abeta_file.write('{};{};{};{}\n'.format(
                             pop,                                    # 群体名称
                             pop_Abeta[0].get()['global_id'],       # 起始GID
@@ -276,7 +514,6 @@ class Simulation():
                         print(f'  Created {nn_normal} normal neurons (GID: {pop_normal[0].get()["global_id"]}-{pop_normal[-1].get()["global_id"]})')
                     
                     # ==================== 合并群体 ====================
-                    # 将Aβ影响和正常神经元合并为一个群体
                     if created_populations:
                         if len(created_populations) == 2:
                             population = created_populations[0] + created_populations[1]  # Aβ + 正常
@@ -286,7 +523,6 @@ class Simulation():
                         continue  # 如果没有创建任何神经元，跳过此群体
                     
                     # ==================== 直流驱动设置 ====================
-                    # 为整个群体（包括Aβ和正常神经元）分配相同的直流输入
                     nest.SetStatus(
                         population, {
                             'I_e': self.net_dict['dc_drive'].loc[pop]
@@ -294,15 +530,12 @@ class Simulation():
                     )
                     
                     # ==================== 膜电位初始化 ====================
-                    # 所有神经元使用相同的初始膜电位分布
                     population.V_m = nest.random.normal(
                         mean=self.sim_dict['V0_mean'],
                         std=self.sim_dict['V0_sd']
                     )
                     
                     # ==================== 参数分布设置 ====================
-                    # 分别为Aβ影响和正常神经元设置参数分布
-                    
                     # 1. 为Aβ影响的神经元设置参数分布
                     if nn_Abeta > 0:
                         for prm, dist_dict in nrn_prm_dist_pop_Abeta.items():
@@ -319,7 +552,6 @@ class Simulation():
                                         mean=mean_prm,
                                         rel_sd=dist_dict['rel_sd']
                                     )
-                                    # 只对Aβ影响的神经元应用参数
                                     pop_Abeta.set({prm:
                                         offset_prm + nest.random.lognormal(
                                         mean=mu_param,
@@ -345,7 +577,6 @@ class Simulation():
                                         mean=mean_prm,
                                         rel_sd=dist_dict['rel_sd']
                                     )
-                                    # 只对正常神经元应用参数
                                     pop_normal.set({prm:
                                         offset_prm + nest.random.lognormal(
                                         mean=mu_param,
@@ -356,58 +587,65 @@ class Simulation():
                                     raise NotImplementedError(err_msg)
                     
                     # ==================== 群体存储和记录 ====================
-                    # 将合并后的群体存储到类字典中
                     self.pops[pop] = population
                     
-                    # 记录整个群体的信息到population_GIDs.dat文件
+                    # 立即记录整个群体的信息（行缓冲会立即写入）
                     pop_file.write('{};{};{}\n'.format(
                         pop,                                        # 群体名称
                         population[0].get()['global_id'],          # 群体起始GID
                         population[-1].get()['global_id']          # 群体结束GID
                     ))
+                    
+                    # ==================== 进度监控和缓冲区管理 ====================
+                    processed_populations += 1
+                    
+                    # 定期强制刷新缓冲区（适合长时间运行的SLURM作业）
+                    if processed_populations % FLUSH_INTERVAL == 0:
+                        pop_file.flush()
+                        abeta_file.flush()
+                        progress_pct = 100 * processed_populations / total_populations
+                        print(f'[SLURM进度监控] 阿尔茨海默病网络构建进度: {processed_populations}/{total_populations} '
+                            f'({progress_pct:.1f}%), 累积Aβ神经元: {total_abeta_neurons}')
+                    
+                    # 定期内存检查（防止内存溢出导致SLURM作业被杀）
+                    if processed_populations % MEMORY_CHECK_INTERVAL == 0:
+                        current_memory = self._getMemoryMB()
+                        print(f'[内存监控] Rank {nest.Rank()}: {current_memory:.2f}MB, '
+                            f'平均每个群体: {current_memory/processed_populations:.2f}MB')
+                        
+                        # 如果内存使用过高，发出警告
+                        if current_memory > 50000:  # 50GB警告阈值
+                            print(f'警告: 内存使用较高 ({current_memory:.2f}MB), 请监控SLURM作业状态')
+            
+            # 最终刷新确保所有数据写入磁盘
+            pop_file.flush()
+            abeta_file.flush()
         
-        # ==================== 最终内存监控和统计 ====================
-        print('Memory on rank {} after creating populations: {:.2f}MB'.format(
-            nest.Rank(), self._getMemoryMB()
-        ))
-        
-        # 输出创建的群体统计信息
+        # ==================== 最终统计和验证 ====================
+        final_memory = self._getMemoryMB()
         total_neurons = sum(len(pop) for pop in self.pops.values())
-        print(f'Successfully created {len(self.pops)} populations with {total_neurons} total neurons.')
-        print(f'Population GIDs saved to: {pop_file_name}')
-        print(f'Abeta-affected neuron GIDs saved to: {abeta_file_name}')
-
-    # ==================== 补充函数说明 ====================
-    """
-    此修改版本的主要改进:
-
-    1. Aβ病理建模 (Aβ Pathology Modeling):
-    - 根据Abeta_ratio精确计算受影响神经元数量
-    - 分别创建和配置Aβ影响和正常神经元
-    - 使用不同的神经元模型和参数来模拟病理变化
-
-    2. 数据记录增强 (Enhanced Data Recording):
-    - 创建专门的Abeta_GID.txt文件记录受影响神经元
-    - 详细记录每个群体中Aβ神经元的GID范围
-    - 添加统计信息和创建过程日志
-
-    3. 参数分布优化 (Parameter Distribution Optimization):
-    - 分别为Aβ和正常神经元设置不同的参数分布
-    - 保持参数设置的生物学现实性
-    - 支持不同的病理严重程度建模
-
-    4. 错误处理和调试 (Error Handling and Debugging):
-    - 添加详细的创建过程打印信息
-    - 改进错误消息的特异性
-    - 添加数量验证和统计输出
-
-    5. 计算效率 (Computational Efficiency):
-    - 优化神经元创建流程
-    - 减少不必要的参数设置重复
-    - 改进内存使用监控
-
-    这个版本特别适合阿尔茨海默病的病理建模研究，能够精确控制病理神经元的比例和特性。
-    """
+        
+        print('=' * 80)
+        print('阿尔茨海默病脑网络构建完成 (Alzheimer\'s Disease Brain Network Created)')
+        print('=' * 80)
+        print(f'成功创建 {len(self.pops)} 个神经元群体')
+        print(f'总神经元数量: {total_neurons:,}')
+        print(f'Aβ影响神经元: {total_abeta_neurons:,} ({100*total_abeta_neurons/total_neurons:.2f}%)')
+        print(f'正常神经元: {total_neurons-total_abeta_neurons:,} ({100*(total_neurons-total_abeta_neurons)/total_neurons:.2f}%)')
+        print(f'内存使用: Rank {nest.Rank()}: {final_memory:.2f}MB')
+        print(f'群体GID文件: {pop_file_name}')
+        print(f'Aβ神经元文件: {abeta_file_name}')
+        print('=' * 80)
+        
+        # 验证文件是否正确写入
+        try:
+            with open(pop_file_name, 'r') as f:
+                pop_lines = len(f.readlines())
+            with open(abeta_file_name, 'r') as f:
+                abeta_lines = len([l for l in f.readlines() if not l.startswith('#')])
+            print(f'文件验证: population_GIDs.dat有{pop_lines}行, Abeta_GID.txt有{abeta_lines}行Aβ记录')
+        except Exception as e:
+            print(f'文件验证失败: {e}')
 
     def create_devices(self):
         """
