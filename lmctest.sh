@@ -18,4 +18,5 @@ micromamba activate humam
 # which python3
 # which python
 
-snakemake --cores 192
+snakemake -s lmcSnakefile --cores 192
+

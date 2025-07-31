@@ -3,12 +3,7 @@ import sys
 import json
 
 # configfile: 'config.yaml'
-EXPERIMENTS = ["Norm_local"]
-
-# EXPERIMENTS = [
-#     "007_S_6521",
-#     "023_S_6661"
-# ]
+EXPERIMENTS = ["Abeta_test"]
 
 if not "EXPERIMENTS" in locals():
     EXPERIMENTS = []
@@ -46,8 +41,8 @@ BASE_PATH = os.getcwd()
 
 rule all:
     input:
-        expand('experiments/{experiment}.analysis_hash', experiment=EXPERIMENTS)
-#        expand('experiments/{experiment}.simulation_hash', experiment=EXPERIMENTS)
+#        expand('experiments/{experiment}.analysis_hash', experiment=EXPERIMENTS)
+        expand('experiments/{experiment}.simulation_hash', experiment=EXPERIMENTS)
 
 rule createNetwork:
     input:
@@ -72,7 +67,7 @@ rule simulateNetwork:
     log:
         'out/log/{experiment}_simulateNetwork.log'
     shell:
-        'mpirun python src/snakemake_simulation.py {input} {output} 3584'
+        'mpirun -n 96 python src/snakemake_simulation.py {input} {output} 96'
 
 rule analyzeNetwork:
     input:

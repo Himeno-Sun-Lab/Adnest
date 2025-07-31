@@ -72,7 +72,7 @@ rule simulateNetwork:
     log:
         'out/log/{experiment}_simulateNetwork.log'
     shell:
-        'mpirun python src/snakemake_simulation.py {input} {output} 3584'
+        'python src/snakemake_simulation.py {input} {output} 112'
 
 rule analyzeNetwork:
     input:

@@ -3,12 +3,7 @@ import sys
 import json
 
 # configfile: 'config.yaml'
-EXPERIMENTS = ["Norm_local"]
-
-# EXPERIMENTS = [
-#     "007_S_6521",
-#     "023_S_6661"
-# ]
+EXPERIMENTS = ["Abeta_default"]
 
 if not "EXPERIMENTS" in locals():
     EXPERIMENTS = []
@@ -72,7 +67,7 @@ rule simulateNetwork:
     log:
         'out/log/{experiment}_simulateNetwork.log'
     shell:
-        'mpirun python src/snakemake_simulation.py {input} {output} 3584'
+        'srun python src/snakemake_simulation.py {input} {output} 28'
 
 rule analyzeNetwork:
     input:
