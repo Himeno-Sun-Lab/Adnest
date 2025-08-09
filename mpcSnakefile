@@ -82,3 +82,14 @@ rule analyzeNetwork:
         'out/log/{experiment}_analyzeNetwork.log'
     shell:
         'python src/snakemake_analysis.py {input} {output} {BASE_PATH}'
+
+rule archiveResults:
+    input:
+        "experiments/{experiment}.py"
+        "experiments/{experiment}.network_hash",
+        "experiments/{experiment}.simulation_hash",
+        "experiments/{experiment}.analysis_hash"
+    output:
+        "experiments/{experiment}.log"
+    shell:
+        "python src/snakemake_archive.py {input} {output}"
